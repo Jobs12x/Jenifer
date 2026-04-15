@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proposta Homepage Nous — UpFlux · v3</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+
+    /* ═══════════════════════════════════════════════════
+       TOKENS — UpFlux Design System + Briefing Enterprise
+    ═══════════════════════════════════════════════════ */
+    :root {
+      /* UpFlux universais */
+      --bg:            #13002E;
+      --bg-card:       rgba(255,255,255,0.03);
+      --bg-card-hover: rgba(255,255,255,0.055);
+      --purple:        #7301CA;
+      --purple-sec:    #997FFF;
+      --white:         #FFFFFF;
+      --muted:         #A7B1BF;
+      --tertiary:      #72818D;
+      --border:        rgba(255,255,255,0.06);
+      --border-accent: rgba(153,127,255,0.25);
+      --glow:          rgba(115,1,202,0.35);
+
+      /* Motion (briefing) */
+      --ease-out: cubic-bezier(.16,1,.3,1);
+      --dur-fast: 200ms;
+      --dur-std:  600ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       MOTION — briefing spec
+       Fade-up: opacity + translateY(24px), stagger 80ms
+    ═══════════════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity var(--dur-std) var(--ease-out),
+                  transform var(--dur-std) var(--ease-out);
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
+    .reveal-group > * {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity var(--dur-std) var(--ease-out),
+                  transform var(--dur-std) var(--ease-out);
+    }
+    .reveal-group.in > *:nth-child(1) { opacity:1;transform:none;transition-delay:0ms; }
+    .reveal-group.in > *:nth-child(2) { opacity:1;transform:none;transition-delay:80ms; }
+    .reveal-group.in > *:nth-child(3) { opacity:1;transform:none;transition-delay:160ms; }
+    .reveal-group.in > *:nth-child(4) { opacity:1;transform:none;transition-delay:240ms; }
+
+    /* ═══════════════════════════════════════════════════
+       NAV — glassmorphism (briefing) sobre dark UpFlux
+    ═══════════════════════════════════════════════════ */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; padding: 0 72px;
+      background: rgba(19,0,46,0);
+      transition: background 300ms ease, backdrop-filter 300ms ease,
+                  border-color 300ms ease;
+      border-bottom: 1px solid transparent;
+    }
+    .nav.scrolled {
+      background: rgba(19,0,46,.85);
+      backdrop-filter: blur(16px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-size: 16px; font-weight: 600; letter-spacing: -0.02em;
+      color: var(--white);
+    }
+    .nav-logo span { color: var(--purple-sec); }
+    .nav-links { display: flex; gap: 36px; }
+    .nav-link {
+      font-size: 13px; font-weight: 400; color: var(--muted);
+      text-decoration: none; padding: 4px 0; position: relative;
+      transition: color var(--dur-fast) ease;
+    }
+    .nav-link:hover { color: var(--white); }
+    .nav-link.active { color: var(--white); font-weight: 500; }
+    .nav-link.active::after {
+      content: '';
+      position: absolute; bottom: -2px; left: 0; right: 0; height: 1px;
+      background: var(--purple-sec);
+      animation: underline-in 250ms ease forwards;
+    }
+    @keyframes underline-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+    /* CTA pill — fill da esquerda para direita (briefing) */
+    .nav-cta {
+      font-size: 12.5px; font-weight: 500; font-family: inherit;
+      padding: 8px 20px; border-radius: 100px;
+      border: 1px solid var(--border-accent);
+      background: transparent; color: var(--white);
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: border-color var(--dur-fast) ease;
+    }
+    .nav-cta::before {
+      content: '';
+      position: absolute; inset: 0; background: var(--purple);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 250ms ease;
+    }
+    .nav-cta:hover { border-color: var(--purple); }
+    .nav-cta:hover::before { transform: scaleX(1); }
+    .nav-cta:active { transform: scale(0.97); }
+    .nav-cta span { position: relative; z-index: 1; }
+
+    /* ═══════════════════════════════════════════════════
+       HERO — Celonis-ref: 50/50 split, bold heavy type
+       Left: text column  |  Right: cinematic video shell
+    ═══════════════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      padding: 0 72px;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      position: relative; overflow: hidden;
+    }
+
+    /* Glow bokeh — decorativo */
+    .hero-glow {
+      position: fixed; top: -240px; right: -120px;
+      width: 800px; height: 800px;
+      background: radial-gradient(ellipse at center,
+        rgba(115,1,202,.28) 0%,
+        rgba(153,127,255,.07) 50%,
+        transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .hero-glow-2 {
+      position: fixed; bottom: -100px; left: -60px;
+      width: 500px; height: 500px;
+      background: radial-gradient(ellipse at center,
+        rgba(115,1,202,.12) 0%,
+        transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Inner grid: two equal columns ── */
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: center;
+      padding: 140px 0 56px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── Left: text ── */
+    .hero-text {
+      display: flex; flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--purple-sec);
+      margin-bottom: 28px;
+    }
+    .eyebrow-pulse {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--purple-sec);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%       { opacity:.35; transform:scale(.8); }
+    }
+
+    /* Headline — Celonis-ref: bold, massive, commanding */
+    .hero-display {
+      font-size: clamp(52px, 5.5vw, 88px);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.05em;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+    /* Gradient accent on selected word */
+    .hero-display .hl {
+      background: linear-gradient(90deg, var(--purple-sec) 0%, #c084fc 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    /* Muted italic for contrast */
+    .hero-display .dim {
+      color: var(--muted);
+      -webkit-text-fill-color: var(--muted);
+      font-style: normal;
+    }
+
+    .hero-sub {
+      font-size: 17px; font-weight: 400; line-height: 1.7;
+      color: var(--muted); max-width: 480px;
+      margin-bottom: 44px;
+    }
+
+    /* CTAs pill */
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .btn-primary {
+      font-size: 13.5px; font-weight: 500; font-family: inherit;
+      padding: 13px 26px; border-radius: 100px;
+      border: none; background: var(--purple); color: var(--white);
+      cursor: pointer; position: relative; overflow: hidden;
+      box-shadow: 0 0 32px rgba(115,1,202,.4);
+      transition: box-shadow var(--dur-fast) ease;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0; background: rgba(255,255,255,.1);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 250ms ease;
+    }
+    .btn-primary:hover { box-shadow: 0 0 56px rgba(115,1,202,.65); }
+    .btn-primary:hover::before { transform: scaleX(1); }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary span { position: relative; z-index: 1; }
+
+    .btn-outline {
+      font-size: 13.5px; font-weight: 400; font-family: inherit;
+      padding: 13px 26px; border-radius: 100px;
+      border: 1px solid var(--border-accent); background: transparent;
+      color: var(--muted); cursor: pointer; position: relative; overflow: hidden;
+      transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+    }
+    .btn-outline::before {
+      content: '';
+      position: absolute; inset: 0; background: var(--purple);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 250ms ease;
+    }
+    .btn-outline:hover { color: var(--white); border-color: var(--purple); }
+    .btn-outline:hover::before { transform: scaleX(1); }
+    .btn-outline:active { transform: scale(0.97); }
+    .btn-outline span { position: relative; z-index: 1; }
+
+    /* ── Right: cinematic video shell ── */
+    .hero-visual {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      height: 100%;
+    }
+
+    .video-cinematic {
+      position: relative;
+      width: 100%; min-height: 440px;
+      border-radius: 20px; overflow: hidden;
+      border: 0.5px solid var(--border-accent);
+      box-shadow:
+        0 0 100px rgba(115,1,202,.22),
+        0 0 40px rgba(115,1,202,.10),
+        0 48px 96px rgba(0,0,0,.6);
+      background: #07001a;
+    }
+    /* Subtle inner grid — Celonis depth effect */
+    .video-cinematic::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(153,127,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(153,127,255,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 1;
+    }
+    /* Top accent line */
+    .video-cinematic::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--purple-sec) 40%, transparent 100%);
+      z-index: 2;
+    }
+
+    /* White inner screen — product UI area (conforme briefing) */
+    .vc-screen {
+      position: absolute;
+      inset: 40px 36px 56px;
+      border-radius: 10px;
+      background: #ffffff;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 0.5px rgba(255,255,255,.08);
+    }
+    .vc-waiting {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .vc-waiting-badge {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      background: rgba(42,42,128,.07); color: #3d3db5;
+      border: 0.5px solid rgba(42,42,128,.18);
+      border-radius: 100px; padding: 4px 12px;
+    }
+    .vc-waiting-label {
+      font-size: 12px; color: #aaa; text-align: center; line-height: 1.6;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Play button overlay */
+    .vc-overlay {
+      position: absolute; inset: 0; z-index: 3;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(7,0,26,0.08);
+      transition: background 200ms ease;
+      cursor: pointer;
+    }
+    .vc-overlay:hover { background: rgba(7,0,26,0.02); }
+    .vc-play {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: rgba(115,1,202,.8);
+      backdrop-filter: blur(12px);
+      border: 0.5px solid rgba(153,127,255,.45);
+      color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 220ms var(--ease-out), background 200ms ease;
+      box-shadow: 0 0 48px rgba(115,1,202,.55), 0 0 16px rgba(115,1,202,.3);
+    }
+    .vc-overlay:hover .vc-play {
+      background: var(--purple);
+      transform: scale(1.1);
+    }
+
+    /* Bottom meta strip */
+    .vc-meta {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 4;
+      padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(7,0,26,.75); backdrop-filter: blur(8px);
+      border-top: 0.5px solid rgba(153,127,255,.15);
+    }
+    .vc-meta-label {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--tertiary);
+    }
+    .vc-meta-pill {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 100px;
+      background: rgba(115,1,202,.3); border: 0.5px solid rgba(153,127,255,.3);
+      color: var(--purple-sec);
+    }
+
+    /* ── Social proof strip — below both columns ── */
+    .hero-proof {
+      padding-bottom: 64px;
+      position: relative; z-index: 1;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .hero-proof-line {
+      flex: 0 0 auto;
+      width: 32px; height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--border-accent) 100%);
+    }
+    .hero-proof-text {
+      font-size: 12px; font-weight: 400;
+      color: var(--tertiary); letter-spacing: 0.01em;
+    }
+    .hero-proof-segs {
+      display: flex; gap: 0; align-items: center;
+      margin-left: auto;
+    }
+    .hero-proof-seg {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--tertiary);
+      padding: 0 18px; border-right: 1px solid var(--border);
+    }
+    .hero-proof-seg:first-child { padding-left: 0; }
+    .hero-proof-seg:last-child  { border-right: none; }
+
+    /* ═══════════════════════════════════════════════════
+       SECTION BASE
+    ═══════════════════════════════════════════════════ */
+    .section {
+      padding: 100px 72px;
+      max-width: 1300px; margin: 0 auto;
+      border-top: 1px solid var(--border);
+    }
+    .section-full {
+      padding: 100px 72px;
+      border-top: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--purple-sec);
+      margin-bottom: 18px;
+    }
+    .headline {
+      font-size: 44px; font-weight: 300; letter-spacing: -0.03em;
+      line-height: 1.12;
+    }
+    .headline strong { font-weight: 500; }
+    .sub-text {
+      font-size: 17px; font-weight: 300; color: var(--muted);
+      margin-top: 16px; max-width: 560px; line-height: 1.75;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       NOUS INTRO — split 50/50 (Celonis ref: data dense)
+    ═══════════════════════════════════════════════════ */
+    .nous-split {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center; margin-top: 60px;
+    }
+
+    .nous-stats { display: flex; gap: 40px; margin-top: 40px; }
+    .stat-num {
+      font-size: 34px; font-weight: 500; letter-spacing: -0.03em;
+      background: linear-gradient(90deg, var(--white), var(--purple-sec));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-lbl {
+      font-size: 12px; font-weight: 300; color: var(--muted);
+      margin-top: 4px; line-height: 1.55;
+    }
+
+    /* ─── VIDEO PLACEHOLDER (seção Nous Intro — abaixo do hero) ─── */
+    /* Shell reutiliza a mesma estética cinematic, escala menor */
+    .video-container {
+      position: relative;
+      border-radius: 16px; overflow: hidden;
+      border: 0.5px solid var(--border-accent);
+      box-shadow: 0 0 80px rgba(115,1,202,.15), 0 32px 64px rgba(0,0,0,.4);
+      aspect-ratio: 16/10;
+      background: #07001a;
+    }
+    .video-container::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(153,127,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(153,127,255,.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none; z-index: 1;
+    }
+    .video-container::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--purple-sec) 40%, transparent 100%);
+      z-index: 2;
+    }
+    /* Inner screen area — branco para telas do produto */
+    .video-screen {
+      position: absolute;
+      inset: 32px 28px 48px;
+      border-radius: 8px;
+      background: #ffffff;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      z-index: 2;
+      box-shadow: 0 4px 20px rgba(0,0,0,.35);
+    }
+    .video-instruction {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px;
+    }
+    .vi-badge {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      background: rgba(42,42,128,.07); color: #3d3db5;
+      border: 0.5px solid rgba(42,42,128,.18);
+      border-radius: 100px; padding: 4px 12px;
+    }
+    .vi-title { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+    .vi-sub { font-size: 11px; color: #999; max-width: 240px; text-align: center; line-height: 1.6; }
+    /* Bottom meta strip — seção intro */
+    .video-meta {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+      padding: 10px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(7,0,26,.75); backdrop-filter: blur(8px);
+      border-top: 0.5px solid rgba(153,127,255,.15);
+    }
+    .vm-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tertiary); }
+    .vm-pill {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 100px;
+      background: rgba(115,1,202,.3); border: 0.5px solid rgba(153,127,255,.3);
+      color: var(--purple-sec);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PILARES — 3 cards (Celonis: density + grid rigoroso)
+    ═══════════════════════════════════════════════════ */
+    .pillars-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-top: 60px;
+    }
+    .pillar-card {
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      border-radius: 14px; padding: 32px 26px;
+      position: relative; overflow: hidden;
+      transition: border-color var(--dur-fast) ease,
+                  transform 300ms var(--ease-out),
+                  background var(--dur-fast) ease;
+    }
+    .pillar-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: scale(1.01); /* briefing: scale não translate */
+    }
+    /* Accent bar no topo — gradient warm UpFlux */
+    .pillar-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--purple) 0%, var(--purple-sec) 100%);
+    }
+    /* Glow sutil no canto — decorativo */
+    .pillar-card::after {
+      content: '';
+      position: absolute; top: -40px; left: -40px;
+      width: 150px; height: 150px;
+      background: radial-gradient(ellipse, rgba(115,1,202,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .pillar-num {
+      font-size: 11px; font-weight: 400; color: var(--tertiary);
+      letter-spacing: 0.1em; margin-bottom: 20px;
+      font-variant-numeric: tabular-nums;
+    }
+    .pillar-badge {
+      display: inline-block;
+      font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 100px;
+      border: 0.5px solid var(--border-accent);
+      color: var(--purple-sec); margin-bottom: 18px;
+    }
+    .pillar-headline {
+      font-size: 17px; font-weight: 500; line-height: 1.4; margin-bottom: 14px;
+    }
+    .pillar-body {
+      font-size: 14px; font-weight: 300; color: var(--muted); line-height: 1.7;
+    }
+    .pillar-note {
+      margin-top: 24px; padding-top: 18px;
+      border-top: 0.5px solid var(--border);
+    }
+    .pillar-punchline {
+      font-size: 14px; font-weight: 400; font-style: italic;
+      color: var(--purple-sec); margin-bottom: 6px;
+    }
+    .pillar-rationale {
+      font-size: 12px; font-weight: 300; color: var(--tertiary); line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       VERTICAIS — 4 cards (Celonis: por vertical/use case)
+    ═══════════════════════════════════════════════════ */
+    .vert-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; margin-top: 60px;
+    }
+    .vert-card {
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      border-radius: 14px; padding: 28px 22px;
+      transition: border-color var(--dur-fast) ease,
+                  transform 300ms var(--ease-out),
+                  background var(--dur-fast) ease;
+    }
+    .vert-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: scale(1.01);
+    }
+    .vert-segment {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--purple-sec);
+      margin-bottom: 16px;
+    }
+    .vert-pain {
+      font-size: 15px; font-weight: 500; line-height: 1.4; margin-bottom: 12px;
+    }
+    .vert-body {
+      font-size: 13px; font-weight: 300; color: var(--muted);
+      line-height: 1.65; margin-bottom: 20px;
+    }
+    .vert-impact {
+      font-size: 12px; font-weight: 500; color: var(--purple-sec);
+      padding-top: 14px; border-top: 0.5px solid var(--border);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FINAL CTA
+    ═══════════════════════════════════════════════════ */
+    .final-cta {
+      padding: 120px 72px;
+      max-width: 1300px; margin: 0 auto;
+      border-top: 1px solid var(--border);
+      position: relative;
+    }
+    /* Glow bokeh decorativo, canto inferior direito */
+    .final-cta::after {
+      content: '';
+      position: absolute; bottom: -80px; right: 0;
+      width: 600px; height: 500px;
+      background: radial-gradient(ellipse at bottom right,
+        rgba(153,127,255,.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .cta-headline {
+      font-size: 56px; font-weight: 300; letter-spacing: -0.04em;
+      line-height: 1.08; max-width: 800px; margin-bottom: 20px;
+    }
+    .cta-headline em { font-style: italic; color: var(--muted); }
+    .cta-sub {
+      font-size: 18px; font-weight: 300; color: var(--muted);
+      max-width: 500px; margin-bottom: 48px; line-height: 1.75;
+    }
+    .cta-btns { display: flex; gap: 14px; position: relative; z-index: 1; }
+
+    /* ═══════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════
+       NEURAL NETWORK CANVAS — fundo futurista, fixed
+    ═══════════════════════════════════════════════════ */
+    #neural-bg {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none; z-index: 0;
+      opacity: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       LOGO TICKER — scroll infinito da direita p/ esquerda
+    ═══════════════════════════════════════════════════ */
+    .ticker-section {
+      position: relative; z-index: 2;
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      background: rgba(115,1,202,.04);
+    }
+    /* Fade edges — Celonis style */
+    .ticker-section::before,
+    .ticker-section::after {
+      content: '';
+      position: absolute; top: 0; bottom: 0; width: 140px;
+      z-index: 3; pointer-events: none;
+    }
+    .ticker-section::before {
+      left: 0;
+      background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+    }
+    .ticker-section::after {
+      right: 0;
+      background: linear-gradient(-90deg, var(--bg) 0%, transparent 100%);
+    }
+    .ticker-label {
+      text-align: center;
+      font-size: 9.5px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--tertiary);
+      margin-bottom: 22px;
+    }
+    .ticker-track-wrap {
+      display: flex; overflow: hidden;
+    }
+    /* Duplicamos o track para loop seamless */
+    .ticker-track {
+      display: flex; align-items: center;
+      gap: 72px; white-space: nowrap; flex-shrink: 0;
+      animation: ticker-scroll 28s linear infinite;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    /* Segundo clone para continuidade */
+    .ticker-track-clone {
+      display: flex; align-items: center;
+      gap: 72px; white-space: nowrap; flex-shrink: 0;
+      animation: ticker-scroll 28s linear infinite;
+      margin-left: 72px;
+    }
+    .ticker-track-clone:hover { animation-play-state: paused; }
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-100%); }
+    }
+    .logo-name {
+      font-size: 12.5px; font-weight: 600; letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.38);
+      text-transform: uppercase;
+      transition: color 250ms ease;
+      display: flex; align-items: center; gap: 8px;
+      user-select: none;
+    }
+    .logo-name:hover { color: rgba(255,255,255,0.72); }
+    /* Separador entre logos */
+    .logo-sep {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: rgba(153,127,255,0.35); flex-shrink: 0;
+    }
+    /* Logos com tipografia especial */
+    .logo-name.serif { font-family: Georgia, serif; font-weight: 400; letter-spacing: 0.02em; }
+
+    @media (max-width: 1100px) {
+      .nav, .section, .section-full, .final-cta { padding-left: 40px; padding-right: 40px; }
+      .hero { padding-left: 40px; padding-right: 40px; }
+      .hero-inner { gap: 48px; }
+    }
+    @media (max-width: 860px) {
+      .nav, .section, .section-full, .final-cta { padding-left: 24px; padding-right: 24px; }
+      .hero { padding-left: 24px; padding-right: 24px; }
+      .hero-inner {
+        grid-template-columns: 1fr;
+        padding: 120px 0 48px;
+        gap: 48px;
+      }
+      .hero-visual { min-height: 320px; }
+      .video-cinematic { min-height: 320px; }
+      .hero-proof { flex-wrap: wrap; gap: 12px; }
+      .hero-proof-segs { margin-left: 0; width: 100%; }
+      .nous-split { grid-template-columns: 1fr; gap: 40px; }
+      .pillars-grid { grid-template-columns: 1fr; }
+      .vert-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 540px) {
+      .vert-grid { grid-template-columns: 1fr; }
+      .hero-ctas { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     NAV — glassmorphism dark UpFlux
+════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-logo">upflux<span>.ai</span></div>
+  <button class="nav-cta"><span>Ver demonstração &rarr;</span></button>
+</nav>
+
+<!-- Neural network background canvas -->
+<canvas id="neural-bg" aria-hidden="true"></canvas>
+
+<div class="hero-glow"></div>
+<div class="hero-glow-2"></div>
+
+<!-- ════════════════════════════════════
+     HERO — 50/50 Celonis split
+     Left: bold headline + CTA
+     Right: cinematic video shell
+════════════════════════════════════ -->
+<section class="hero">
+
+  <div class="hero-inner">
+
+    <!-- ── LEFT: Copy ── -->
+    <div class="hero-text reveal-group">
+
+      <div class="hero-eyebrow">
+        <span class="eyebrow-pulse"></span>
+        Nous &mdash; Process Conversational AI
+      </div>
+
+      <h1 class="hero-display" id="hero-h1">
+        Seu processo<br>
+        sabe onde está<br>
+        o <span class="hl">dinheiro</span><br>
+        <span class="dim">perdido.</span>
+      </h1>
+
+      <p class="hero-sub">
+        Nous reconstrói como seus processos realmente funcionam,
+        quantifica gargalos com impacto financeiro e executa ações
+        com governança e rastreabilidade total.
+      </p>
+
+      <div class="hero-ctas">
+        <button class="btn-primary"><span>Ver demonstração com dados do meu setor &rarr;</span></button>
+        <button class="btn-outline"><span>Estimar meu ROI</span></button>
+      </div>
+
+    </div><!-- /hero-text -->
+
+    <!-- ── RIGHT: Cinematic video shell ── -->
+    <div class="hero-visual reveal">
+      <div class="video-cinematic">
+
+        <!-- White inner area — product UI screens (briefing) -->
+        <div class="vc-screen">
+          <div class="vc-waiting">
+            <div class="vc-waiting-badge">Aguardando telas</div>
+            <div class="vc-waiting-label">
+              Aqui entram as capturas do Nous.<br>
+              Envie as telas para montar o mockup do vídeo.
+            </div>
+          </div>
+        </div>
+
+        <!-- Play button overlay -->
+        <div class="vc-overlay">
+          <div class="vc-play">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Bottom meta strip -->
+        <div class="vc-meta">
+          <span class="vc-meta-label">Nous em ação — demo ao vivo</span>
+          <span class="vc-meta-pill">Process Intelligence</span>
+        </div>
+
+      </div><!-- /video-cinematic -->
+    </div><!-- /hero-visual -->
+
+  </div><!-- /hero-inner -->
+
+  <!-- Social proof strip — below both columns -->
+  <div class="hero-proof reveal">
+    <div class="hero-proof-line"></div>
+    <span class="hero-proof-text">Operadoras, indústrias e utilities enxergando seus processos em tempo real</span>
+    <div class="hero-proof-segs">
+      <span class="hero-proof-seg">Saúde</span>
+      <span class="hero-proof-seg">P2P</span>
+      <span class="hero-proof-seg">Indústria</span>
+      <span class="hero-proof-seg">Utilities</span>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ════════════════════════════════════
+     LOGO TICKER — clientes em scroll infinito
+════════════════════════════════════ -->
+<div class="ticker-section">
+  <div class="ticker-label">Empresas que já enxergam seus processos com a Upflux</div>
+  <div class="ticker-track-wrap">
+
+    <!-- Track principal -->
+    <div class="ticker-track">
+      <span class="logo-name">Coprev</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Rede Santa Catarina</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Supergasbras</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Electrolux</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">VR</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Romagnole</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">WEG</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name serif">Lindt</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Unimed</span>
+      <span class="logo-sep"></span>
+    </div>
+
+    <!-- Clone para loop contínuo sem gap -->
+    <div class="ticker-track ticker-track-clone">
+      <span class="logo-name">Coprev</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Rede Santa Catarina</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Supergasbras</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Electrolux</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">VR</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Romagnole</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">WEG</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name serif">Lindt</span>
+      <span class="logo-sep"></span>
+      <span class="logo-name">Unimed</span>
+      <span class="logo-sep"></span>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     NOUS INTRO — split + video mockup
+════════════════════════════════════ -->
+<div class="section">
+  <div class="eyebrow reveal">O que é o Nous</div>
+
+  <div class="nous-split">
+    <!-- Texto -->
+    <div class="reveal">
+      <h2 class="headline">
+        IA que opera sobre o<br>
+        seu <strong>processo real.</strong><br>
+        Não os seus dados.
+      </h2>
+      <p class="sub-text">
+        Chatbots genéricos respondem com o que está no ERP.
+        Nous responde com o que realmente acontece — mapeado, rastreado e
+        compreendido pelo motor de Process Mining da Upflux.
+        Do diagnóstico à ação autônoma, sem trocar de sistema.
+      </p>
+      <div class="nous-stats reveal-group">
+        <div>
+          <div class="stat-num">15–30%</div>
+          <div class="stat-lbl">da capacidade operacional perdida<br>em processos não rastreados</div>
+        </div>
+        <div>
+          <div class="stat-num">3–6 meses</div>
+          <div class="stat-lbl">payback médio documentado<br>em clientes ativos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIDEO MOCKUP (seção intro) ────────────────
+         Área para telas do Nous — envie as capturas para
+         montar o mockup com perguntas e respostas em tempo real.
+    ─────────────────────────────────────────────── -->
+    <div class="video-container reveal">
+      <!-- Área branca onde as telas do produto serão inseridas -->
+      <div class="video-screen">
+        <div class="video-instruction">
+          <div class="vi-badge">Aguardando telas</div>
+          <div class="vi-title">Mockup de vídeo do Nous</div>
+          <div class="vi-sub">
+            Envie as telas da interface do Nous.<br>
+            Aqui será inserido o vídeo/carrossel simulando as perguntas e respostas.
+          </div>
+        </div>
+      </div>
+      <!-- Bottom strip -->
+      <div class="video-meta">
+        <span class="vm-label">Nous em ação</span>
+        <span class="vm-pill">Process Intelligence</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     PILARES
+════════════════════════════════════ -->
+<div class="section">
+  <div class="reveal">
+    <div class="eyebrow">Como o Nous funciona</div>
+    <h2 class="headline">
+      Entender &rarr; Agir &rarr; <strong>Provar.</strong>
+    </h2>
+    <p class="sub-text">
+      O único ciclo que fecha o loop completo — do diagnóstico do processo real
+      ao ROI auditável pronto para o board.
+    </p>
+  </div>
+
+  <div class="pillars-grid reveal-group">
+
+    <div class="pillar-card">
+      <div class="pillar-num">01</div>
+      <span class="pillar-badge">Entender</span>
+      <div class="pillar-headline">
+        Reconstrói automaticamente como seus processos realmente funcionam. Não como foram desenhados.
+      </div>
+      <p class="pillar-body">
+        O motor de Process Mining mapeia variantes, detecta desvios e quantifica
+        o impacto financeiro de cada gargalo. Nous torna esse contexto acessível
+        em linguagem natural para qualquer decisor.
+      </p>
+      <div class="pillar-note">
+        <div class="pillar-punchline">"Veja o processo real. Não o fluxograma."</div>
+        <div class="pillar-rationale">Ressoa com o decisor operacional que sabe que fluxograma não reflete a realidade.</div>
+      </div>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-num">02</div>
+      <span class="pillar-badge">Agir</span>
+      <div class="pillar-headline">
+        Agentes autônomos que executam com governança, rastreabilidade e controle total.
+      </div>
+      <p class="pillar-body">
+        Com o contexto real do processo, os agentes do Nous executam correções,
+        notificações e monitoramento — com registro auditável de cada decisão e
+        controle de acesso por perfil.
+      </p>
+      <div class="pillar-note">
+        <div class="pillar-punchline">"Da pergunta à ação. Sem trocar de sistema."</div>
+        <div class="pillar-rationale">Elimina a objeção de integração antes que ela apareça na conversa comercial.</div>
+      </div>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-num">03</div>
+      <span class="pillar-badge">Provar</span>
+      <div class="pillar-headline">
+        ROI mensurável e auditável em tempo real, conectado a cada intervenção.
+      </div>
+      <p class="pillar-body">
+        O Value Tracker registra o impacto financeiro de cada ação em tempo real,
+        com rastreabilidade completa. O resultado não é promessa — é dado auditável
+        pronto para o board.
+      </p>
+      <div class="pillar-note">
+        <div class="pillar-punchline">"Cada R$ recuperado, documentado e auditável."</div>
+        <div class="pillar-rationale">Endereça a objeção principal em IA B2B: como medir o resultado de forma concreta.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     VERTICAIS
+════════════════════════════════════ -->
+<div class="section">
+  <div class="reveal">
+    <div class="eyebrow">Onde está o custo oculto</div>
+    <h2 class="headline">Cada setor tem <strong>uma dor específica.</strong></h2>
+    <p class="sub-text">
+      O Nous foi construído para identificar e corrigir o custo real de cada uma delas.
+    </p>
+  </div>
+
+  <div class="vert-grid reveal-group">
+
+    <div class="vert-card">
+      <div class="vert-segment">Saúde &mdash; Unimeds</div>
+      <div class="vert-pain">
+        "Glosas e auditorias manuais aprovam o que deveria ser barrado — e barram o que deveria passar."
+      </div>
+      <p class="vert-body">
+        Milhões perdidos em retrabalho de auditoria, pagamentos indevidos e
+        conformidade que depende de quem está de plantão.
+      </p>
+      <div class="vert-impact">Redução de 20–40% no tempo de auditoria</div>
+    </div>
+
+    <div class="vert-card">
+      <div class="vert-segment">P2P &mdash; Procure-to-Pay</div>
+      <div class="vert-pain">
+        "Aprovações atrasadas travam capital de giro e comprometem relacionamentos com fornecedores."
+      </div>
+      <p class="vert-body">
+        Cada dia de atraso no ciclo de aprovação tem custo financeiro direto e
+        mensurável. O gargalo existe — mas ninguém sabe onde nem quanto custa.
+      </p>
+      <div class="vert-impact">Redução de 30–50% no ciclo de aprovação</div>
+    </div>
+
+    <div class="vert-card">
+      <div class="vert-segment">Indústria</div>
+      <div class="vert-pain">
+        "Manutenção, logística e compras operam em silos. A falha aparece depois que o custo já foi feito."
+      </div>
+      <p class="vert-body">
+        Processos desconectados geram paradas não planejadas e não-conformidades
+        que só aparecem na auditoria — tarde demais.
+      </p>
+      <div class="vert-impact">Antecipação de falhas com monitoramento contínuo</div>
+    </div>
+
+    <div class="vert-card">
+      <div class="vert-segment">Utilities</div>
+      <div class="vert-pain">
+        "Compliance regulatório exige rastreabilidade que os sistemas atuais não entregam."
+      </div>
+      <p class="vert-body">
+        Alto volume, baixa padronização e risco real de multas regulatórias
+        por falta de auditabilidade em cada etapa do processo.
+      </p>
+      <div class="vert-impact">Conformidade auditável em cada etapa</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     FINAL CTA
+════════════════════════════════════ -->
+<div class="final-cta reveal">
+  <div class="eyebrow">Próximo passo</div>
+  <h2 class="cta-headline">
+    Quanto está custando<br>
+    não enxergar seu processo<br>
+    <em>hoje?</em>
+  </h2>
+  <p class="cta-sub">
+    Em 30 minutos de demonstração com dados do seu setor, você vê onde o custo
+    está e o que o Nous faria em 24 horas.
+  </p>
+  <div class="cta-btns">
+    <button class="btn-primary"><span>Ver demonstração com dados do meu setor &rarr;</span></button>
+    <button class="btn-outline"><span>Estimar meu ROI</span></button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     MOTION SCRIPT
+════════════════════════════════════ -->
+<script>
+  // ══════════════════════════════════════════════════
+  // NEURAL NETWORK BACKGROUND — partículas + conexões
+  // Estética futurista, sutil, sobre o dark UpFlux
+  // ══════════════════════════════════════════════════
+  (function() {
+    const canvas = document.getElementById('neural-bg');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, particles, mouse = { x: -9999, y: -9999 };
+    const N = 70;          // número de partículas
+    const MAX_DIST = 155;  // distância máxima de conexão
+    const MOUSE_DIST = 200;// raio de influência do mouse
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function Particle() {
+      this.x  = Math.random() * W;
+      this.y  = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.35;
+      this.vy = (Math.random() - 0.5) * 0.35;
+      this.r  = Math.random() * 1.2 + 0.4;
+    }
+
+    function init() {
+      particles = Array.from({ length: N }, () => new Particle());
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Atualiza posições
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1;
+        if (p.y < 0 || p.y > H) p.vy *= -1;
+
+        // Atração suave pelo mouse
+        const mdx = mouse.x - p.x, mdy = mouse.y - p.y;
+        const md  = Math.sqrt(mdx * mdx + mdy * mdy);
+        if (md < MOUSE_DIST && md > 0) {
+          const force = (MOUSE_DIST - md) / MOUSE_DIST * 0.012;
+          p.vx += mdx / md * force;
+          p.vy += mdy / md * force;
+          // limita velocidade
+          const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+          if (speed > 1.4) { p.vx = p.vx / speed * 1.4; p.vy = p.vy / speed * 1.4; }
+        }
+
+        // Ponto
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(153,127,255,0.55)';
+        ctx.fill();
+      });
+
+      // Conexões entre partículas próximas
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx   = particles[i].x - particles[j].x;
+          const dy   = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MAX_DIST) {
+            const alpha = (1 - dist / MAX_DIST) * 0.18;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(115,1,202,${alpha})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+        // Linha do mouse para partículas próximas
+        const mdx  = mouse.x - particles[i].x;
+        const mdy  = mouse.y - particles[i].y;
+        const mdst = Math.sqrt(mdx * mdx + mdy * mdy);
+        if (mdst < MOUSE_DIST) {
+          const alpha = (1 - mdst / MOUSE_DIST) * 0.28;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `rgba(153,127,255,${alpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('mousemove', e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }, { passive: true });
+    window.addEventListener('mouseleave', () => {
+      mouse.x = -9999; mouse.y = -9999;
+    });
+    window.addEventListener('resize', () => { resize(); init(); }, { passive: true });
+
+    resize(); init(); draw();
+  })();
+
+  // ── Nav glassmorphism
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 32);
+  }, { passive: true });
+
+  // ── IntersectionObserver — fade-up e stagger
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal, .reveal-group').forEach(el => io.observe(el));
+
+  // ── Hero — entrada orquestrada (briefing: stagger 80ms entre filhos)
+  // hero-text é um reveal-group → já tem stagger automático via CSS nth-child
+  // hero-visual e hero-proof entram via observer mas com delay extra
+  const heroText = document.querySelector('.hero-text');
+  if (heroText) {
+    heroText.classList.remove('reveal-group');
+    // força entrada sequencial dos filhos
+    Array.from(heroText.children).forEach((child, i) => {
+      child.style.opacity = '0';
+      child.style.transform = 'translateY(24px)';
+      child.style.transition = `opacity 600ms cubic-bezier(.16,1,.3,1), transform 600ms cubic-bezier(.16,1,.3,1)`;
+      child.style.transitionDelay = `${80 + i * 100}ms`;
+      setTimeout(() => {
+        child.style.opacity = '1';
+        child.style.transform = 'none';
+      }, 80 + i * 100);
+    });
+  }
+  // hero-visual: entra 200ms depois do texto já ter começado
+  const heroVisual = document.querySelector('.hero-visual');
+  if (heroVisual) {
+    heroVisual.classList.remove('reveal');
+    heroVisual.style.opacity = '0';
+    heroVisual.style.transform = 'translateY(20px)';
+    heroVisual.style.transition = 'opacity 700ms cubic-bezier(.16,1,.3,1), transform 700ms cubic-bezier(.16,1,.3,1)';
+    heroVisual.style.transitionDelay = '240ms';
+    setTimeout(() => {
+      heroVisual.style.opacity = '1';
+      heroVisual.style.transform = 'none';
+    }, 240);
+  }
+  // hero-proof: entra por último
+  const heroProof = document.querySelector('.hero-proof');
+  if (heroProof) {
+    heroProof.classList.remove('reveal');
+    heroProof.style.opacity = '0';
+    heroProof.style.transition = 'opacity 500ms ease';
+    heroProof.style.transitionDelay = '600ms';
+    setTimeout(() => { heroProof.style.opacity = '1'; }, 600);
+  }
+</script>
+
+</body>
+</html>
