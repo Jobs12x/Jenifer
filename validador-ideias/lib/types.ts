@@ -25,6 +25,7 @@ export type StageId =
 
 export interface Project {
   id: string;
+  origin?: string; // 'chat' = resultados trazidos de uma validação feita no chat
   createdAt: number;
   intake: Intake;
   uncertainties?: Json;

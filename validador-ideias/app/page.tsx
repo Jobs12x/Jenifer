@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { emptyIntake, SCORE_WEIGHTS, type Json, type Project, type StageId } from "../lib/types";
 import { weightedScore } from "../lib/finance";
 import { DEMO_INTAKE } from "../lib/demo";
+import { OSFRIENDS } from "../lib/osfriends";
 import { Audience, Canvas, Market, Mvp, Score, Uncertainties, Viability } from "../components/Views";
 
 type StepId = "intake" | StageId;
@@ -104,11 +105,15 @@ export default function Page() {
         <h1>{cur.label.replace(/^\d+\.\s/, "")}</h1>
         <p className="muted">{cur.blurb}</p>
         {demo && <div className="notice"><b>Modo demonstração:</b> sem chave da API, os resultados são dados de EXEMPLO fixos (não são gerados para a sua ideia). Configure ANTHROPIC_API_KEY para análises reais.</div>}
+        {project.origin === "chat" && <div className="notice"><b>Projeto trazido do chat:</b> estes resultados foram gerados pelo Claude na conversa (dados SINTÉTICOS, sem pesquisa na web). Para gerar novamente dentro do app é preciso configurar a ANTHROPIC_API_KEY.</div>}
         {error && <div className="err" role="alert">{error}</div>}
 
         {step === "intake" ? (
           <>
-            <div className="row" style={{ marginBottom: 12 }}><button className="btn sec" onClick={() => setIntake(DEMO_INTAKE)}>Carregar ideia de exemplo</button><span className="muted">Preenche tudo para você testar o fluxo.</span></div>
+            <div className="row" style={{ marginBottom: 12 }}>
+              <button className="btn sec" onClick={() => { const p: Project = { ...OSFRIENDS, id: uid(), createdAt: Date.now() }; setProjects([p, ...projects]); setCurrentId(p.id); setStep("score"); setError(""); }}>Abrir projeto OsFriends (validação feita no chat)</button>
+              <button className="btn ghost" onClick={() => setIntake(DEMO_INTAKE)}>Carregar ideia de exemplo</button>
+            </div>
             <div className="card">
               {field("name", "Nome da ideia", "Ex.: PetCare Express")}
               {field("idea", "Qual ideia será testada?", "Descreva em 2-3 frases o que é o negócio.", true)}
