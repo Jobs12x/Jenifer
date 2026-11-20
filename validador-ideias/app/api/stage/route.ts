@@ -37,6 +37,13 @@ export async function POST(req: Request) {
 
   // Sem chave da API: modo demonstração com dados de exemplo fixos.
   if (!process.env.ANTHROPIC_API_KEY || process.env.DEMO_MODE === "1") {
+    // Dados de exemplo só para o projeto de demonstração; para outras ideias, exige a chave.
+    if (!project.intake.name.startsWith("MarmitaWork")) {
+      return NextResponse.json(
+        { error: "Sem ANTHROPIC_API_KEY o app não gera análises novas para esta ideia. Configure a chave no .env.local para gerar." },
+        { status: 503 },
+      );
+    }
     await new Promise((r) => setTimeout(r, 600));
     return NextResponse.json({ data: DEMO[stage], demo: true });
   }
