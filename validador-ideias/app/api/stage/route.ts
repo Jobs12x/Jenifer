@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { buildPrompt, SYSTEM } from "../../../lib/stages";
+import { DEMO } from "../../../lib/demo";
 import type { Project, StageId } from "../../../lib/types";
 
 export const maxDuration = 300;
@@ -23,9 +24,6 @@ function extractHtml(text: string) {
 }
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY não configurada no servidor (.env.local)." }, { status: 500 });
-  }
   let body: { stage: StageId; project: Project };
   try {
     body = await req.json();
@@ -35,6 +33,12 @@ export async function POST(req: Request) {
   const { stage, project } = body;
   if (!STAGES.includes(stage) || !project?.intake?.idea) {
     return NextResponse.json({ error: "Etapa ou projeto inválido." }, { status: 400 });
+  }
+
+  // Sem chave da API: modo demonstração com dados de exemplo fixos.
+  if (!process.env.ANTHROPIC_API_KEY || process.env.DEMO_MODE === "1") {
+    await new Promise((r) => setTimeout(r, 600));
+    return NextResponse.json({ data: DEMO[stage], demo: true });
   }
 
   const { prompt, raw, maxTokens } = buildPrompt(stage, project);

@@ -20,6 +20,8 @@ cp .env.example .env.local   # coloque sua ANTHROPIC_API_KEY
 npm install
 npm run dev                  # http://localhost:3000
 ```
+**Sem chave da API:** o app entra em *modo demonstração* e mostra dados de exemplo fixos (botão "Carregar ideia de exemplo"), úteis para conhecer o fluxo. Para análises reais da sua ideia, configure `ANTHROPIC_API_KEY`.
+
 Modelo padrão: `claude-opus-5-5` (troque com `ANTHROPIC_MODEL`). Projetos ficam no `localStorage` do navegador.
 
 ## Estrutura

@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { emptyIntake, SCORE_WEIGHTS, type Json, type Project, type StageId } from "../lib/types";
 import { weightedScore } from "../lib/finance";
+import { DEMO_INTAKE } from "../lib/demo";
 import { Audience, Canvas, Market, Mvp, Score, Uncertainties, Viability } from "../components/Views";
 
 type StepId = "intake" | StageId;
@@ -28,6 +29,7 @@ export default function Page() {
   const [loading, setLoading] = useState<StageId | null>(null);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const [demo, setDemo] = useState(false);
 
   useEffect(() => {
     try {
@@ -61,6 +63,7 @@ export default function Page() {
       const res = await fetch("/api/stage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ stage, project }) });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Falha ao gerar.");
+      if (json.demo) setDemo(true);
       update({ [stage]: json.data } as Partial<Project>);
     } catch (e) { setError((e as Error).message); }
     finally { setLoading(null); }
@@ -100,10 +103,12 @@ export default function Page() {
       <main className="main">
         <h1>{cur.label.replace(/^\d+\.\s/, "")}</h1>
         <p className="muted">{cur.blurb}</p>
+        {demo && <div className="notice"><b>Modo demonstração:</b> sem chave da API, os resultados são dados de EXEMPLO fixos (não são gerados para a sua ideia). Configure ANTHROPIC_API_KEY para análises reais.</div>}
         {error && <div className="err" role="alert">{error}</div>}
 
         {step === "intake" ? (
           <>
+            <div className="row" style={{ marginBottom: 12 }}><button className="btn sec" onClick={() => setIntake(DEMO_INTAKE)}>Carregar ideia de exemplo</button><span className="muted">Preenche tudo para você testar o fluxo.</span></div>
             <div className="card">
               {field("name", "Nome da ideia", "Ex.: PetCare Express")}
               {field("idea", "Qual ideia será testada?", "Descreva em 2-3 frases o que é o negócio.", true)}

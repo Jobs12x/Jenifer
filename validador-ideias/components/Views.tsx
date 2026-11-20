@@ -206,7 +206,11 @@ export function Viability({ d, onChange }: { d: Json; onChange: (next: Json) => 
     ["new_customers_month1", "Novos clientes no mês 1"], ["new_customers_growth_pct", "Crescimento mensal de novos clientes (%)"],
   ];
   const set = (k: string, v: number) => onChange({ ...d, financial: { ...d.financial, assumptions: { ...a, [k]: v } } });
-  const max = Math.max(...f.rows.map((r) => Math.abs(r.cumulative)), 1);
+  const hi = Math.max(...f.rows.map((r) => r.cumulative), 0);
+  const lo = Math.min(...f.rows.map((r) => r.cumulative), 0);
+  const span = Math.max(hi - lo, 1);
+  const H = 120;
+  const zeroY = (hi / span) * H; // distância do topo até o zero
   return (
     <>
       <div className="card">
@@ -227,10 +231,14 @@ export function Viability({ d, onChange }: { d: Json; onChange: (next: Json) => 
           <div><h4>Caixa mínimo (necessidade de capital)</h4><div style={{ fontWeight: 700 }}>{brl(f.minCash)}</div></div>
         </div>
         <h4 style={{ marginTop: 16 }}>Caixa acumulado (36 meses)</h4>
-        <div role="img" aria-label="Caixa acumulado em 36 meses" style={{ display: "flex", alignItems: "center", gap: 2, height: 120 }}>
-          {f.rows.map((r) => (
-            <div key={r.month} title={`Mês ${r.month}: ${brl(r.cumulative)}`} style={{ flex: 1, height: Math.max(2, (Math.abs(r.cumulative) / max) * 110), background: r.cumulative >= 0 ? "var(--ok)" : "var(--bad)", borderRadius: 2, alignSelf: r.cumulative >= 0 ? "flex-end" : "flex-start" }} />
-          ))}
+        <div role="img" aria-label="Caixa acumulado em 36 meses" style={{ position: "relative", display: "flex", gap: 2, height: H }}>
+          {f.rows.map((r) => {
+            const h = Math.max(2, (Math.abs(r.cumulative) / span) * H);
+            return <div key={r.month} title={`Mês ${r.month}: ${brl(r.cumulative)}`} style={{ flex: 1, position: "relative" }}>
+              <div style={{ position: "absolute", left: 0, right: 0, height: h, top: r.cumulative >= 0 ? zeroY - h : zeroY, background: r.cumulative >= 0 ? "var(--ok)" : "var(--bad)", borderRadius: 2 }} />
+            </div>;
+          })}
+          <div style={{ position: "absolute", left: 0, right: 0, top: zeroY, borderTop: "1px dashed var(--muted)" }} />
         </div>
         <p className="muted">Verde = acumulado positivo · vermelho = negativo.</p>
         <div className="grid g2"><div><h4>Custos</h4><List items={(d.financial?.cost_breakdown ?? []).map((c: Json) => `${c.item}: ${brl(c.monthly)}/mês`)} /></div><div><h4>Riscos financeiros</h4><List items={d.financial?.risks} /><p className="muted">{d.financial?.funding_notes}</p></div></div>
